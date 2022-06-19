@@ -12,42 +12,43 @@ $app->register(new Silex\Provider\MonologServiceProvider(), array(
 
 // Register view rendering
 $app->register(new Silex\Provider\TwigServiceProvider(), array(
-    'twig.path' => __DIR__.'/views',
+  'twig.path' => __DIR__ . '/views',
 ));
 
 // DB
 $dbopts = parse_url(getenv('DATABASE_URL'));
-$app->register(new Csanquer\Silex\PdoServiceProvider\Provider\PDOServiceProvider('pdo'),
-               array(
-                'pdo.server' => array(
-                   'driver'   => 'pgsql',
-                   'user' => $dbopts["user"],
-                   'password' => $dbopts["pass"],
-                   'host' => $dbopts["host"],
-                   'port' => $dbopts["port"],
-                   'dbname' => ltrim($dbopts["path"],'/')
-                   )
-               )
+$app->register(
+  new Csanquer\Silex\PdoServiceProvider\Provider\PDOServiceProvider('pdo'),
+  array(
+    'pdo.server' => array(
+      'driver'   => 'pgsql',
+      'user' => $dbopts["user"],
+      'password' => $dbopts["pass"],
+      'host' => $dbopts["host"],
+      'port' => $dbopts["port"],
+      'dbname' => ltrim($dbopts["path"], '/')
+    )
+  )
 );
 
 // Our web handlers
 
-$app->get('/', function() use($app) {
+$app->get('/', function () use ($app) {
   $app['monolog']->addDebug('logging output.');
   return $app['twig']->render('index.twig');
 });
 
-$app->get('/cowsay', function() use($app) {
+$app->get('/cowsay', function () use ($app) {
   $app['monolog']->addDebug('cowsay');
-  return "<pre>".\Cowsayphp\Cow::say("Cool beans")."</pre>";
+  return "<pre>" . \Cowsayphp\Cow::say("Cool beans") . "</pre>";
 });
 
-$app->get('/times', function() use($app) {
+$app->get('/times', function () use ($app) {
   $app['monolog']->addDebug('logging output.');
   return str_repeat('Hello', getenv('TIMES'));
 });
 
-$app->get('/db/', function() use($app) {
+$app->get('/db/', function () use ($app) {
   $st = $app['pdo']->prepare('SELECT name FROM test_table');
   $st->execute();
 
